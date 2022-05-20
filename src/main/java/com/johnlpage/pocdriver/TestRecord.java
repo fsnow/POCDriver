@@ -1,6 +1,8 @@
 package com.johnlpage.pocdriver;
 
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.*;
 
 import org.bson.BsonBinarySubType;
@@ -11,7 +13,7 @@ import de.svenjacobs.loremipsum.LoremIpsum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Random;
-
+import java.util.UUID;
 
 //A Test Record is a MongoDB Record Object that is self populating
 
@@ -143,7 +145,17 @@ public class TestRecord {
 			blobData = new Binary(BsonBinarySubType.BINARY, data);
 		}
 
-		internalDoc.append("bin", blobData);
+		//internalDoc.append("bin", blobData);
+
+		// FSnow: add random UUID (type 3) field "user_uuid"
+		UUID uuid = UUID.randomUUID();
+		byte[] bytes = new byte[16];
+    ByteBuffer bb = ByteBuffer.wrap(bytes);
+    bb.order(ByteOrder.LITTLE_ENDIAN);
+    bb.putLong(uuid.getMostSignificantBits());
+    bb.putLong(uuid.getLeastSignificantBits());
+
+		internalDoc.append("user_uuid", new Binary(BsonBinarySubType.UUID_LEGACY, bb.array()));
 	}
 
 	/**
